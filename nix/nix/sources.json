@@ -5,10 +5,10 @@
         "homepage": "",
         "owner": "serokell",
         "repo": "nixpkgs",
-        "rev": "66a26e65eb7f9b6cb3f773052da0cd3ac52f015c",
-        "sha256": "09ab1wywcwhqlwy566y00h6q8c7x64qvdk2b82jvadixbanx46wh",
+        "rev": "aa647e73acfe5a86022f9efbdcec74f73ebca372",
+        "sha256": "1czyxq4dcf8zsm327rk71kqillxr4d7k4rp7bx66ncs6w9s43hpb",
         "type": "tarball",
-        "url": "https://github.com/serokell/nixpkgs/archive/66a26e65eb7f9b6cb3f773052da0cd3ac52f015c.tar.gz",
+        "url": "https://github.com/serokell/nixpkgs/archive/aa647e73acfe5a86022f9efbdcec74f73ebca372.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "opam-nix": {
