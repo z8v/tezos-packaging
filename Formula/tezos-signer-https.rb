@@ -10,10 +10,6 @@ class TezosSignerHttps < Formula
 
   desc "Meta formula that provides backround tezos-signer service that runs over https"
 
-  bottle do
-    root_url "https://github.com/serokell/tezos-packaging/releases/download/#{TezosSignerHttps.version}/"
-  end
-
   def install
     startup_contents =
       <<~EOS

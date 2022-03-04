@@ -10,10 +10,6 @@ class TezosSignerUnix < Formula
 
   desc "Meta formula that provides backround tezos-signer service that runs over unix socket"
 
-  bottle do
-    root_url "https://github.com/serokell/tezos-packaging/releases/download/#{TezosSignerUnix.version}/"
-  end
-
   def install
     startup_contents =
       <<~EOS

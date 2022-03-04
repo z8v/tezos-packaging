@@ -10,10 +10,6 @@ class TezosNodeIthacanet < Formula
 
   desc "Meta formula that provides background tezos-node service that runs on ithacanet"
 
-  bottle do
-    root_url "https://github.com/serokell/tezos-packaging/releases/download/#{TezosNodeIthacanet.version}/"
-  end
-
   def install
     startup_contents =
       <<~EOS

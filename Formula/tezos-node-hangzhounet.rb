@@ -10,10 +10,6 @@ class TezosNodeHangzhounet < Formula
 
   desc "Meta formula that provides background tezos-node service that runs on hangzhounet"
 
-  bottle do
-    root_url "https://github.com/serokell/tezos-packaging/releases/download/#{TezosNodeHangzhounet.version}/"
-  end
-
   def install
     startup_contents =
       <<~EOS
