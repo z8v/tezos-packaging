@@ -6,10 +6,13 @@ class TezosNodeMainnet < Formula
   url "file:///dev/null"
   version "v12.0-1"
 
-  bottle :unneeded
   depends_on "tezos-node"
 
   desc "Meta formula that provides background tezos-node service that runs on mainnet"
+
+  bottle do
+    root_url "https://github.com/serokell/tezos-packaging/releases/download/#{TezosNodeMainnet.version}/"
+  end
 
   def install
     startup_contents =

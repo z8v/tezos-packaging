@@ -14,8 +14,7 @@ ymlappend () {
     echo "$1" >> .buildkite/pipeline-for-tags.yml
 }
 
-# we don't bottle meta-formulas that contain only services
-formulae=("tezos-accuser-011-PtHangz2" "tezos-accuser-012-Psithaca" "tezos-admin-client" "tezos-baker-011-PtHangz2" "tezos-baker-012-Psithaca" "tezos-client" "tezos-codec" "tezos-endorser-011-PtHangz2" "tezos-node" "tezos-sandbox" "tezos-signer")
+formulae=("tezos-accuser-011-PtHangz2" "tezos-accuser-012-Psithaca" "tezos-admin-client" "tezos-baker-011-PtHangz2" "tezos-baker-012-Psithaca" "tezos-client" "tezos-codec" "tezos-endorser-011-PtHangz2" "tezos-node-hangzhounet" "tezos-node-ithacanet" "tezos-node-mainnet" "tezos-node" "tezos-sandbox" "tezos-signer-http" "tezos-signer-https" "tezos-signer-tcp" "tezos-signer-unix" "tezos-signer")
 
 # tezos-sapling-params is used as a dependency for some of the formulas
 # so we handle it separately.

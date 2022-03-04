@@ -6,10 +6,13 @@ class TezosSignerTcp < Formula
   url "file:///dev/null"
   version "v12.0-1"
 
-  bottle :unneeded
   depends_on "tezos-signer"
 
   desc "Meta formula that provides backround tezos-signer service that runs over tcp socket"
+
+  bottle do
+    root_url "https://github.com/serokell/tezos-packaging/releases/download/#{TezosSignerTcp.version}/"
+  end
 
   def install
     startup_contents =
