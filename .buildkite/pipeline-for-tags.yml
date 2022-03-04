@@ -33,3 +33,15 @@ steps:
    - export TEZOS_VERSION="$(cat nix/nix/sources.json | jq -r '.tezos.ref' | cut -d'/' -f3)"
    - buildkite-agent artifact download "out/*" . --step build-source-packages
    - ./scripts/publish-native-packages.sh out
+
+ - label: Install one meta-package
+   agents:
+     queue: "arm64-darwin"
+   if: build.tag =~ /^meta.*/
+   commands:
+   - brew install --formula ./Formula/tezos-sapling-params.rb
+   - brew install --formula ./Formula/tezos-node.rb
+   - brew install --formula --build-bottle ./Formula/tezos-node-hangzhounet.rb
+   - brew uninstall --formula ./Formula/tezos-node-hangzhounet.rb
+   - brew uninstall --formula ./Formula/tezos-node.rb
+   - brew uninstall --formula ./Formula/tezos-sapling-params.rb
