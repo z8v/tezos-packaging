@@ -222,6 +222,37 @@ class Setup(Setup):
             return False
         return True
 
+    # Check <network>.xtz-shots.io/base.json and collect the most recent snapshot
+    # that is suited for the chosen history mode
+    def get_snapshot_link(self):
+        self.config["snapshot_url"] = None
+        network_url = f"https://{self.config['network']}.xtz-shots.io"
+        json_url = f"{network_url}/base.json"
+        try:
+            with urllib.request.urlopen(json_url) as url:
+                snapshot_array = json.load(url)
+        except (urllib.error.URLError, ValueError):
+            print(f"Couldn't collect snapshot metadata from {json_url}")
+            return
+
+        for artifact in snapshot_array:
+            # each artifact-describing object has a multi-level structure,
+            # so we need to flatten it internally
+            (name, metadata) = list(artifact.items())[0]
+            metadata = metadata["contents"]
+
+            if metadata["artifact_type"] != "tezos-snapshot":
+                continue
+
+            # We just need the first instance of the right snapshot. To speed filtering up,
+            # it is assumed metadata is sorted chronologically in descending order.
+            if metadata["history_mode"] == self.config["history_mode"] or (
+                self.config["history_mode"] == "archive"
+                and metadata["history_mode"] == "full"
+            ):
+                self.config["snapshot_url"] = f"{network_url}/{name}"
+                return
+
     # Importing the snapshot for Node bootstrapping
     def import_snapshot(self):
         do_import = self.check_blockchain_data()
@@ -235,10 +266,17 @@ class Setup(Setup):
                 f"--history-mode {self.config['history_mode']}"
             )
 
+            self.get_snapshot_link()
+
             if self.config["history_mode"] == "rolling":
                 snapshot_import_modes.pop("download full", None)
+                if self.config["snapshot_url"] is None:
+                    snapshot_import_modes.pop("download rolling", None)
             else:
                 snapshot_import_modes.pop("download rolling", None)
+                if self.config["snapshot_url"] is None:
+                    snapshot_import_modes.pop("download full", None)
+
         else:
             return
 
@@ -267,34 +305,15 @@ class Setup(Setup):
                     print("Please check the URL again or choose another option.")
                     print()
                     continue
-            elif self.config["snapshot"] == "download rolling":
-                url = "https://" + self.config["network"] + ".xtz-shots.io/rolling"
+            else:
+                url = self.config["snapshot_url"]
                 try:
                     snapshot_file = fetch_snapshot(url)
-                except urllib.error.URLError:
+                except (ValueError, urllib.error.URLError):
                     print()
-                    print(
-                        "The snapshot download option you chose is unavailable, "
-                        "possibly because the protocol is very new."
-                    )
-                    print(
-                        "Please check your internet connection or choose another option."
-                    )
-                    print()
-                    continue
-            elif self.config["snapshot"] == "download full":
-                url = "https://" + self.config["network"] + ".xtz-shots.io/full"
-                try:
-                    snapshot_file = fetch_snapshot(url)
-                except urllib.error.URLError:
-                    print()
-                    print(
-                        "The snapshot download option you chose is unavailable, "
-                        "possibly because the protocol is very new."
-                    )
-                    print(
-                        "Please check your internet connection or choose another option."
-                    )
+                    print("The snapshot download option you chose is unavailable,")
+                    print("which normally shouldn't happen. Please check your")
+                    print("internet connection or choose another option.")
                     print()
                     continue
 
@@ -315,13 +334,12 @@ class Setup(Setup):
 
             print("Snapshot imported.")
 
-            if self.config["snapshot"] in ["download rolling", "download full", "file"]:
-                try:
-                    os.remove(TMP_SNAPSHOT_LOCATION)
-                except:
-                    pass
-                else:
-                    print("Deleted the temporary snapshot file.")
+            try:
+                os.remove(TMP_SNAPSHOT_LOCATION)
+            except:
+                pass
+            else:
+                print("Deleted the temporary snapshot file.")
 
     # Bootstrapping tezos-node
     def bootstrap_node(self):
