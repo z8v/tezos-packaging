@@ -51,6 +51,12 @@ history_modes = {
     "archive": "Store all the chain data, very storage-demanding",
 }
 
+toggle_vote_modes = {
+    "pass": "Abstain from voting",
+    "off": "Request to end the subsidy",
+    "on": "Request to continue or restart the subsidy",
+}
+
 
 TMP_SNAPSHOT_LOCATION = "/tmp/tezos_node.snapshot"
 
@@ -124,6 +130,17 @@ systemd_mode_query = Step(
     "if you want to experiment. Enabling it will make it start on every boot.",
     options=systemd_enable,
     validator=Validator(enum_range_validator(systemd_enable)),
+)
+
+liquidity_toggle_vote_query = Step(
+    id="liquidity_toggle_vote",
+    prompt="Would you like to request to end the Liquidity Baking subsidy?",
+    help="Tezos chain offers a Liquidity Baking subsidy mechanism to incentivise exchange\n"
+    "between tez and tzBTC. You can ask to end this subsidy, ask to continue it, or abstain.\n"
+    "\nYou can read more about this in the here:\n"
+    "https://tezos.gitlab.io/alpha/liquidity_baking.html",
+    options=toggle_vote_modes,
+    validator=Validator(enum_range_validator(toggle_vote_modes)),
 )
 
 # We define this step as a function to better tailor snapshot options to the chosen history mode
@@ -408,6 +425,18 @@ class Setup(Setup):
             "to see the baker status and baking rights of your account."
         )
 
+    # There is no changing the toggle vote option at a glance,
+    # so we need to change the config every time
+    def set_toggle_vote(self):
+        self.query_step(liquidity_toggle_vote_query)
+
+        config_filepath = self.get_baking_config_filepath()
+        replace_in_service_config(
+            config_filepath,
+            "LIQUIDITY_BAKING_TOGGLE_VOTE",
+            f"\"{self.config['liquidity_toggle_vote']}\"",
+        )
+
     def start_baking(self):
         self.systemctl_start_action("baking")
 
@@ -446,6 +475,8 @@ class Setup(Setup):
                 print("Please check your input and try again.")
                 continue
             executed = True
+
+        self.set_toggle_vote()
 
         print()
         print("Starting the baking instance")
